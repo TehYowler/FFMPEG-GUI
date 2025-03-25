@@ -75,16 +75,12 @@ public readonly struct FileDetails
 public class MainWindowViewModel : ViewModelBase
 {
 
+    static FileSystemWatcher watcher = new(".") {
+        Filter = "FilePaths.txt"
+    };
 
-    
     public MainWindowViewModel()
     {   
-
-        FileSystemWatcher watcher = new(".") {
-            Filter = "FilePaths.txt"
-        };
-
-
         watcher.Changed += (object sender, FileSystemEventArgs e) => {
             string FileUpdate = "\nOperating on files:\n" + File.ReadAllText(@"./FilePaths.txt");
             foreach(PageViewModelBase model in Pages) {
