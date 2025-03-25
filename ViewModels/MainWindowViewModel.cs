@@ -74,8 +74,26 @@ public readonly struct FileDetails
 
 public class MainWindowViewModel : ViewModelBase
 {
+
+
+    
     public MainWindowViewModel()
     {   
+
+        FileSystemWatcher watcher = new(".") {
+            Filter = "FilePaths.txt"
+        };
+
+
+        watcher.Changed += (object sender, FileSystemEventArgs e) => {
+            string FileUpdate = "\nOperating on files:\n" + File.ReadAllText(@"./FilePaths.txt");
+            foreach(PageViewModelBase model in Pages) {
+                model.FileUpdate = FileUpdate;
+            }
+            // Console.WriteLine(FileUpdate);
+        };
+        watcher.EnableRaisingEvents = true;
+
         // Set current page to first on start up
         _CurrentPage = Pages[0];
 

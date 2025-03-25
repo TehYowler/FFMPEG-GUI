@@ -28,16 +28,8 @@ public abstract class PageViewModelBase : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref fileUpdate, value);
     }
 
-    FileSystemWatcher watcher = new(".") {
-        Filter = "FilePaths.txt"
-    };
-
     public PageViewModelBase() {
-        watcher.Changed += (object sender, FileSystemEventArgs e) => {
-            FileUpdate = "\nOperating on files:\n" + File.ReadAllText(@"./FilePaths.txt");
-            // Console.WriteLine(FileUpdate);
-        };
-        watcher.EnableRaisingEvents = true;
+
     }
 
     public void ClickHandle() {
