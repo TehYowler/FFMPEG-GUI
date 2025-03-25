@@ -1,0 +1,39 @@
+<UserControl x:Class="FFMPEG_GUI.Views.Main"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FFMPEG_GUI.ViewModels"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:CompileBindings="True"
+             x:DataType="vm:MainModel"
+             mc:Ignorable="d">
+	<Design.DataContext>
+		<vm:MainModel />
+	</Design.DataContext>
+
+	<StackPanel>
+        <Border Margin="5" CornerRadius="10" Background="LightBlue">
+            <TextBlock Margin="5"
+                FontSize="24" 
+                HorizontalAlignment="Center"
+                Text="{Binding Title}">
+            </TextBlock>
+        </Border>
+
+        <TextBlock FontSize="16"
+                   Text="{Binding Details}"
+                   TextWrapping="Wrap" />
+        
+        <TextBlock
+            FontSize="16"
+            Text="{Binding FileUpdate}"
+            TextWrapping="Wrap"/>
+        
+        <TextBox Text="{Binding TextGeneric}"/>
+        <Button Command="{Binding ClickHandle}">+++</Button>
+
+    </StackPanel>
+
+</UserControl>

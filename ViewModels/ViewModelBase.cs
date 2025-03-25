@@ -1,7 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
+using ReactiveUI;
 
 namespace FFMPEG_GUI.ViewModels;
 
-public class ViewModelBase : ObservableObject
+public abstract class ViewModelBase : ReactiveObject
 {
+    
 }
