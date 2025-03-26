@@ -18,11 +18,7 @@ sealed class Program
         // sw.Write("");
         // sw.Close();
 
-        using (FileStream fs = File.Create("./FilePaths.txt")) {
-            byte[] info = new UTF8Encoding(true).GetBytes("");
-            // Add some information to the file.
-            fs.Write(info, 0, info.Length);
-        }
+        File.WriteAllText("./FilePaths.txt","");
 
 
         BuildAvaloniaApp()

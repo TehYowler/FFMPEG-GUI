@@ -30,13 +30,22 @@
             FontSize="16"
             Text="{Binding FileUpdate}"
             TextWrapping="Wrap"/>
+
+        <TextBox
+            FontSize="16"
+            Watermark="Starting seconds..."
+            Text="{Binding StartSeconds}"
+            TextWrapping="Wrap"
+            Name="StartInput"/>
+
+        <TextBox
+            FontSize="16"
+            Watermark="Ending seconds..."
+            Text="{Binding EndSeconds}"
+            TextWrapping="Wrap"
+            Name="EndInput"/>
         
-        <TextBlock FontSize="16"
-                   Text="This textbox prints its contents into the console when the button is pressed!"
-                   TextWrapping="Wrap" />
-        
-        <TextBox Text="{Binding TextGeneric}"/>
-        <Button Command="{Binding ClickHandle}">+++</Button>
+        <Button Command="{Binding PerformTrim}" CommandParameter="{Binding $self}">Convert As</Button>
 
     </StackPanel>
     

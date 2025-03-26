@@ -4,7 +4,7 @@ using System;
 public class StitchModel : PageViewModelBase
 {
 
-    public StitchModel(): base() {
+    public StitchModel(MainWindowViewModel overseer): base(overseer) {
 
     }
 
@@ -12,12 +12,12 @@ public class StitchModel : PageViewModelBase
     public string Title => "Stitch";
     public string Details => "This stitchs pictures into media <insert more descriptions here>.";
 
+    //The "get" variables determine if you can navigate back and forth from a page.
     public override bool CanNavigateNext
     {
         get => true;
         protected set => throw new NotSupportedException();
     }
-
     public override bool CanNavigatePrevious
     {
         get => true;

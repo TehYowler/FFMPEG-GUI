@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Interactivity;
 
+
+
 namespace FFMPEG_GUI.ViewModels;
 using System;
 using ReactiveUI;
@@ -11,6 +13,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics;
+using Avalonia.Metadata;
+using System.Linq;
 
 public abstract class PageViewModelBase : ViewModelBase
 {
@@ -18,19 +22,23 @@ public abstract class PageViewModelBase : ViewModelBase
     public abstract bool CanNavigatePrevious { get; protected set; }
 
     private string textGeneric = "rat";
-
     public string TextGeneric { get { return textGeneric; } set { textGeneric = value; } }
 
-    private string fileUpdate = "\nSelect file(s) to operate on...\n";
+    private string operateGeneric = "Press the button below to choose the files you want to operate on.";
+    public string OperateGeneric { get { return operateGeneric; } set { operateGeneric = value; } }
 
+    private string fileUpdate = "\nSelect file(s) to operate on at the bottom left...\n";
     public string FileUpdate {
         get => fileUpdate;
         set => this.RaiseAndSetIfChanged(ref fileUpdate, value);
     }
 
-    public PageViewModelBase() {
-
+    public PageViewModelBase(MainWindowViewModel overseer) {
+        _overseer = overseer;
     }
+
+    private MainWindowViewModel _overseer;
+
 
     public void ClickHandle() {
         Console.WriteLine(TextGeneric);
@@ -135,6 +143,25 @@ public abstract class PageViewModelBase : ViewModelBase
         
     }
 
+    public static async Task SetFilePaths(Control control) {
+        List<FileDetails>? filePaths = await PathFromAll(control);
+        if(filePaths == null) return;
+
+        List<string> writeTo = [];
+
+        try {
+
+            foreach(FileDetails detail in filePaths) {
+                writeTo.Add(detail.absolutePath);
+            }
+
+            File.WriteAllText("./FilePaths.txt", String.Join("\n", writeTo));
+        }
+        catch(Exception error) {
+            Console.WriteLine("Error: " + error.Message);
+        }
+
+    }
     public static void Convert(FileDetails from, FileDetails to) {
 
         // string fullCommand = $"-y -i '{from.absolutePath.Replace("'",@"'\''")}' '{to.absolutePath.Replace("'",@"'\''")}'";
@@ -159,6 +186,66 @@ public abstract class PageViewModelBase : ViewModelBase
         }
         
     }
+
+    public static void Concatenate(IEnumerable<FileDetails> from, FileDetails to) {
+
+        IEnumerable<string> fileTo = from.Select(e => "file '" + e.absolutePath + "'");
+
+        File.WriteAllText("./FilePathsList.txt",String.Join("\n",fileTo));
+
+        string fullCommand = $"-safe 0 -f concat -i ./FilePathsList.txt -c:v libx264 -preset ultrafast {to.absolutePath}";
+
+        Console.WriteLine(fullCommand);
+
+        try {
+            Process process;
+
+            runCommand("ffmpeg",fullCommand, out process,true,true);
+
+            if (process.ExitCode == 0) {
+                Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
+            }
+            else {
+                Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
+            }
+        }
+
+        catch {
+            Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
+            return;
+        }
+        
+    }
+
+    public static void Trim(FileDetails from, FileDetails to, string secondsStart, string secondsEnd) {
+
+        // string fullCommand = $"-safe 0 -f concat -i ./FilePathsList.txt -c:v libx264 -preset ultrafast {to.absolutePath}";
+        string fullCommand = $"-ss {secondsStart} -to {secondsEnd} -i {from.absolutePath} -c copy {to.absolutePath}";
+
+        Console.WriteLine(fullCommand);
+
+        try {
+            Process process;
+
+            runCommand("ffmpeg",fullCommand, out process,true,true);
+
+            if (process.ExitCode == 0) {
+                Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
+            }
+            else {
+                Console.WriteLine($"FAILED to convert \"{from.absolutePath}\"!");
+            }
+        }
+
+        catch {
+            Console.WriteLine($"FAILED to convert \"{from.absolutePath}\"!");
+            return;
+        }
+        
+    }
+
+
+    
     public MainWindowViewModel? mainWindow = null;
 
 }

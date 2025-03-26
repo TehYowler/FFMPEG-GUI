@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 public class ConvertModel : PageViewModelBase
 {
 
-    public ConvertModel(): base() {
+    public ConvertModel(MainWindowViewModel overseer): base(overseer) {
 
     }
 
@@ -21,12 +21,12 @@ public class ConvertModel : PageViewModelBase
     The first file path from the operating file paths is what will be converted from.
     Then, click the button below to choose your file path and extension.";
 
+    //The "get" variables determine if you can navigate back and forth from a page.
     public override bool CanNavigateNext
     {
         get => false;
         protected set => throw new NotSupportedException();
     }
-
     public override bool CanNavigatePrevious
     {
         get => true;

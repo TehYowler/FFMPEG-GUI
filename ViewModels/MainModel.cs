@@ -5,7 +5,7 @@ using FFMPEG_GUI.Views;
 public class MainModel : PageViewModelBase
 {
 
-    public MainModel(): base() {
+    public MainModel(MainWindowViewModel overseer): base(overseer) {
 
     }
 
@@ -17,14 +17,12 @@ public class MainModel : PageViewModelBase
     Use the ""Trim"" menu to precisely shorten the length of a piece of media.
     Use the ""Convert"" menu to convert one type of media to another.";
 
-    // This is our first page, so we can navigate to the next page in any case
+    //The "get" variables determine if you can navigate back and forth from a page.
     public override bool CanNavigateNext
     {
         get => true;
         protected set => throw new NotSupportedException();
     }
-
-    // You cannot go back from this page.
     public override bool CanNavigatePrevious
     {
         get => false;

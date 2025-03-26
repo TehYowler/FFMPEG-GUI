@@ -1,0 +1,33 @@
+<UserControl x:Class="FFMPEG_GUI.Views.Video"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FFMPEG_GUI.ViewModels"
+             xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:CompileBindings="True"
+             x:DataType="vm:MainWindowViewModel"
+             mc:Ignorable="d">
+    
+	<Design.DataContext>
+		<vm:MainWindowViewModel />
+	</Design.DataContext>
+
+    <Grid RowDefinitions="Auto, Auto, 450">
+        <Label Grid.Row="0" HorizontalAlignment="Center">Video Player</Label>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" Background="#900000FF" Spacing="20">
+            <Button Command="{Binding Play}" Margin="20" Content="{Binding FilePlay}"/>
+            <Button Command="{Binding Stop}" Margin="20" Content="Stop Playing"/>
+        </StackPanel>
+
+        <vlc:VideoView Grid.Row="2" MediaPlayer="{Binding MediaPlayer}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+        </vlc:VideoView>
+
+    </Grid>
+
+</UserControl>

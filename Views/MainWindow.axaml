@@ -3,21 +3,30 @@
         xmlns:vm="using:FFMPEG_GUI.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:v="clr-namespace:FFMPEG_GUI.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FFMPEG_GUI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="FFMPEG_GUI">
+        Title="FFMPEG_GUI"
+        WindowState="Maximized">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Grid RowDefinitions="*,Auto" Margin="10">
-        <TransitioningContentControl Content="{Binding CurrentPage}" />
+    
+    <Grid RowDefinitions="*,Auto,Auto" Margin="10">
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="5"
+        <TransitioningContentControl Grid.Row="0" Content="{Binding CurrentPage}" />
+
+        <v:Video Grid.Row="1"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="5"
 					HorizontalAlignment="Right">
+            
+            
+
             <Button Command="{Binding SetFilePaths}" CommandParameter="{Binding $self}" Content="Pick File Paths" />
             <Button Command="{Binding NavigatePreviousCommand}" Content="Back" />
             <Button Command="{Binding NavigateNextCommand}" Content="Next" />

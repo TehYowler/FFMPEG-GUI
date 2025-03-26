@@ -1,11 +1,14 @@
 ﻿namespace FFMPEG_GUI.ViewModels;
 using System;
-
+using Avalonia.Controls;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 
 public class ConcatenateModel : PageViewModelBase
 {
 
-    public ConcatenateModel(): base() {
+    public ConcatenateModel(MainWindowViewModel overseer): base(overseer) {
 
     }
 
@@ -13,18 +16,27 @@ public class ConcatenateModel : PageViewModelBase
     public string Title => "Concatenate";
     public string Details => "This page concats media <add more description>.";
 
-    // This is our first page, so we can navigate to the next page in any case
+    //The "get" variables determine if you can navigate back and forth from a page.
     public override bool CanNavigateNext
     {
         get => true;
         protected set => throw new NotSupportedException();
     }
-
-    // You cannot go back from this page.
     public override bool CanNavigatePrevious
     {
         get => true;
         protected set => throw new NotSupportedException();
+    }
+
+    public async void PerformConcatenate(Control control) {
+        try {
+            IEnumerable<FileDetails> from = File.ReadAllText(@"./FilePaths.txt").Split("\n").Select(e => FileDetails.FromPath(e));
+            FileDetails to = (FileDetails)await PathTo(control);
+
+            Concatenate(from,to);
+        }
+        catch{}
+        
     }
 
 

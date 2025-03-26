@@ -24,7 +24,7 @@
                 Text="{Binding Title}">
             </TextBlock>
         </Border>
-
+        
         <TextBlock FontSize="16"
                    Text="{Binding Details}"
                    TextWrapping="Wrap" />
@@ -33,13 +33,8 @@
             FontSize="16"
             Text="{Binding FileUpdate}"
             TextWrapping="Wrap"/>
-        
-        <TextBlock FontSize="16"
-                   Text="This textbox prints its contents into the console when the button is pressed!"
-                   TextWrapping="Wrap" />
-        
-        <TextBox Text="{Binding TextGeneric}"/>
-        <Button Command="{Binding ClickHandle}">+++</Button>
+            
+        <Button Command="{Binding PerformConcatenate}" CommandParameter="{Binding $self}">Concatenate To</Button>
 
     </StackPanel>
 

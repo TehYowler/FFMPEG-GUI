@@ -14,6 +14,10 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using System.IO;
+using LibVLCSharp.Shared;
+using LibVLCSharp.Avalonia;
+using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
+
 
 public readonly struct FileDetails
 {
@@ -72,22 +76,58 @@ public readonly struct FileDetails
     }
 }
 
-public class MainWindowViewModel : ViewModelBase
-{
+public class MainWindowViewModel : ViewModelBase, IDisposable {
 
+    private string filePlay = "Playing: Nothing";
+    public string FilePlay {
+        get => filePlay;
+        set => this.RaiseAndSetIfChanged(ref filePlay, value);
+    }
+    
     static FileSystemWatcher watcher = new(".") {
         Filter = "FilePaths.txt"
     };
 
-    public MainWindowViewModel()
-    {   
-        watcher.Changed += (object sender, FileSystemEventArgs e) => {
-            string FileUpdate = "\nOperating on files:\n" + File.ReadAllText(@"./FilePaths.txt");
-            foreach(PageViewModelBase model in Pages) {
-                model.FileUpdate = FileUpdate;
+    private static readonly LibVLC _libVlc = new LibVLC();
+        
+    public MediaPlayer MediaPlayer { get; }
+
+    private void OnChanged(object sender, FileSystemEventArgs e) {
+        string FileUpdate = "\nOperating on files:\n" + File.ReadAllText(@"./FilePaths.txt");
+        foreach(PageViewModelBase model in Pages) {
+            model.FileUpdate = FileUpdate;
+        }
+
+        try {
+            string[] display = File.ReadAllText(@"./FilePaths.txt").Split("\n");
+            if(display.Length != 1 || display[0] == "") {
+                FilePlay = "Playing Nothing";
+                return;
             }
-            // Console.WriteLine(FileUpdate);
-        };
+            FileDetails getDetails = FileDetails.FromPath(display[0]);
+            FilePlay = "Playing: \"" + getDetails.filename + "\"";
+        }
+        catch(Exception ex) {
+            Console.WriteLine(ex.Message);
+            FilePlay = "Playing: Nothing";
+        }
+    }
+
+    public MainWindowViewModel() {   
+
+        MediaPlayer = new MediaPlayer(_libVlc);
+
+        Pages = [
+            new MainModel(this),
+            new ConcatenateModel(this),
+            new StitchModel(this),
+            new TrimModel(this),
+            new ConvertModel(this)
+        ];
+
+        // if(Design.IsDesignMode == true){};
+
+        watcher.Changed += OnChanged;
         watcher.EnableRaisingEvents = true;
 
         // Set current page to first on start up
@@ -100,17 +140,55 @@ public class MainWindowViewModel : ViewModelBase
         NavigateNextCommand = ReactiveCommand.Create(NavigateNext, canNavNext);
         NavigatePreviousCommand = ReactiveCommand.Create(NavigatePrevious, canNavPrev);
     }
+
+    public void Play()
+        {
+            if (Design.IsDesignMode)
+            {
+                return;
+            }
+
+            try {
+                string[] display = File.ReadAllText(@"./FilePaths.txt").Split("\n");
+                if(display.Length != 1 || display[0] == "") return;
+                using var media = new Media(_libVlc, new Uri(display[0]));
+                MediaPlayer.Play(media);
+            }
+            catch(Exception e) {
+                Console.WriteLine(e.Message);
+            }
+        }
+        
+    public void Stop()
+    {            
+        MediaPlayer.Stop();
+    }
+
+    public void Dispose()
+    {
+        MediaPlayer?.Dispose();
+        _libVlc?.Dispose();
+        watcher.Changed -= OnChanged;
+        watcher.Dispose();
+        Console.WriteLine("Disposing...");
+        // GC.SuppressFinalize(this);
+    }
+
+    private void PointerEntered(VideoView sender, object e)
+    {
+        sender.IsVisible = true;
+    }
+
+    private void PointerExited(VideoView sender, object e)
+    {
+        sender.IsVisible = false;
+    }
+    
     
 
+
     // A readonly array of possible pages.
-    private readonly PageViewModelBase[] Pages =
-    {
-        new MainModel(),
-        new ConcatenateModel(),
-        new StitchModel(),
-        new TrimModel(),
-        new ConvertModel()
-    };
+    private readonly PageViewModelBase[] Pages;
 
     // The default is the first page.
     private PageViewModelBase _CurrentPage;
@@ -143,24 +221,6 @@ public class MainWindowViewModel : ViewModelBase
 
     public static async Task<List<FileDetails>?> PathFromAll(Control control) => await PageViewModelBase.PathFromAll(control);
 
-    public async Task SetFilePaths(Control control) {
-        List<FileDetails>? filePaths = await PathFromAll(control);
-        if(filePaths == null) return;
+    public async Task SetFilePaths(Control control) => await PageViewModelBase.SetFilePaths(control);
 
-        try {
-            StreamWriter sw = new StreamWriter("./FilePaths.txt", false);
-
-            foreach(FileDetails detail in filePaths) {
-                sw.WriteLine(detail.absolutePath);
-            }
-
-            sw.Close();
-        }
-        catch(Exception error) {
-            Console.WriteLine("Error: " + error.Message);
-        }
-
-    }
-
-    
 }
