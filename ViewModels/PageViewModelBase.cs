@@ -15,6 +15,7 @@ using System.IO;
 using System.Diagnostics;
 using Avalonia.Metadata;
 using System.Linq;
+using CliWrap;
 
 public abstract class PageViewModelBase : ViewModelBase
 {
@@ -56,6 +57,10 @@ public abstract class PageViewModelBase : ViewModelBase
             proc.Start();
             if(waitFor) proc.WaitForExit();
         }
+    }
+
+    private static void runCommand(String program,IEnumerable<string> command) {
+        Cli.Wrap(program).WithArguments(command).ExecuteAsync();;
     }
 
     public static async Task<FileDetails?> PathFrom(Control control) {
@@ -165,19 +170,21 @@ public abstract class PageViewModelBase : ViewModelBase
     public static void Convert(FileDetails from, FileDetails to) {
 
         // string fullCommand = $"-y -i '{from.absolutePath.Replace("'",@"'\''")}' '{to.absolutePath.Replace("'",@"'\''")}'";
-        string fullCommand = $"-y -i {from.absolutePath} {to.absolutePath}";
+        // string fullCommand = $"-y -i {from.absolutePath} {to.absolutePath}";
 
         try {
-            Process process;
+            // Process process;
 
-            runCommand("ffmpeg",fullCommand, out process,true,true);
+            // runCommand("ffmpeg",fullCommand, out process,true,true);
 
-            if (process.ExitCode == 0) {
-                Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
-            }
-            else {
-                Console.WriteLine($"FAILED to convert \"{from.absolutePath}\"!");
-            }
+            // if (process.ExitCode == 0) {
+            //     Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
+            // }
+            // else {
+            //     Console.WriteLine($"FAILED to convert \"{from.absolutePath}\"!");
+            // }
+
+            runCommand("ffmpeg",["-y","-i",from.absolutePath,to.absolutePath]);
         }
 
         catch {
@@ -193,21 +200,23 @@ public abstract class PageViewModelBase : ViewModelBase
 
         File.WriteAllText("./FilePathsList.txt",String.Join("\n",fileTo));
 
-        string fullCommand = $"-safe 0 -f concat -i ./FilePathsList.txt -c:v libx264 -preset ultrafast {to.absolutePath}";
+        // string fullCommand = $"-safe 0 -f concat -i ./FilePathsList.txt -c:v libx264 -preset ultrafast {to.absolutePath}";
 
-        Console.WriteLine(fullCommand);
+        // Console.WriteLine(fullCommand);
 
         try {
-            Process process;
+            // Process process;
 
-            runCommand("ffmpeg",fullCommand, out process,true,true);
+            // runCommand("ffmpeg",fullCommand, out process,true,true);
 
-            if (process.ExitCode == 0) {
-                Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
-            }
-            else {
-                Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
-            }
+            // if (process.ExitCode == 0) {
+            //     Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
+            // }
+            // else {
+            //     Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
+            // }
+
+            runCommand("ffmpeg",["-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
         }
 
         catch {
@@ -220,21 +229,12 @@ public abstract class PageViewModelBase : ViewModelBase
     public static void Trim(FileDetails from, FileDetails to, string secondsStart, string secondsEnd) {
 
         // string fullCommand = $"-safe 0 -f concat -i ./FilePathsList.txt -c:v libx264 -preset ultrafast {to.absolutePath}";
-        string fullCommand = $"-ss {secondsStart} -to {secondsEnd} -i {from.absolutePath} -c copy {to.absolutePath}";
+        // string fullCommand = $"-ss {secondsStart} -to {secondsEnd} -i {from.absolutePath} -c copy {to.absolutePath}";
 
-        Console.WriteLine(fullCommand);
+        // Console.WriteLine(fullCommand);
 
         try {
-            Process process;
-
-            runCommand("ffmpeg",fullCommand, out process,true,true);
-
-            if (process.ExitCode == 0) {
-                Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
-            }
-            else {
-                Console.WriteLine($"FAILED to convert \"{from.absolutePath}\"!");
-            }
+            runCommand("ffmpeg",["-ss", secondsStart, "-to", secondsEnd, "-i", from.absolutePath, "-c", "copy", to.absolutePath]);
         }
 
         catch {
