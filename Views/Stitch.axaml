@@ -30,13 +30,15 @@
             FontSize="16"
             Text="{Binding FileUpdate}"
             TextWrapping="Wrap"/>
+
+        <TextBox
+            FontSize="16"
+            Watermark="Frame length (in seconds)"
+            Text="{Binding FrameLength}"
+            TextWrapping="Wrap"
+            Name="StartInput"/>
         
-        <TextBlock FontSize="16"
-                   Text="This textbox prints its contents into the console when the button is pressed!"
-                   TextWrapping="Wrap" />
-        
-        <TextBox Text="{Binding TextGeneric}"/>
-        <Button Command="{Binding ClickHandle}">+++</Button>
+        <Button Command="{Binding PerformStitch}" CommandParameter="{Binding $self}">Stitch Images As</Button>
 
     </StackPanel>
     

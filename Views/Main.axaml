@@ -34,8 +34,8 @@
             Text="{Binding FileUpdate}"
             TextWrapping="Wrap"/>
         
-        <TextBox Text="{Binding TextGeneric}"/>
-        <Button Command="{Binding ClickHandle}">+++</Button>
+        <!-- <TextBox Text="{Binding TextGeneric}"/>
+        <Button Command="{Binding ClickHandle}">+++</Button> -->
 
     </StackPanel>
 

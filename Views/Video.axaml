@@ -15,18 +15,23 @@
 		<vm:MainWindowViewModel />
 	</Design.DataContext>
 
-    <Grid RowDefinitions="Auto, Auto, 450">
+    <Grid RowDefinitions="Auto, Auto, 300, Auto">
         <Label Grid.Row="0" HorizontalAlignment="Center">Video Player</Label>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" Background="#900000FF" Spacing="20">
             <Button Command="{Binding Play}" Margin="20" Content="{Binding FilePlay}"/>
-            <Button Command="{Binding Stop}" Margin="20" Content="Stop Playing"/>
+            <Button Command="{Binding Unload}" Margin="20" Content="Unload Content"/>
+            <TextBlock Text="{Binding PlayTimeSeconds}" Margin="20"/>
         </StackPanel>
 
         <vlc:VideoView Grid.Row="2" MediaPlayer="{Binding MediaPlayer}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch">
         </vlc:VideoView>
+
+            <Slider Grid.Row="3" Value="{Binding PlayTime}" Maximum="{Binding PlayLength}"></Slider>
+
+        
 
     </Grid>
 

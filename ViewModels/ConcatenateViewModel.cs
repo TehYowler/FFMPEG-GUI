@@ -14,7 +14,9 @@ public class ConcatenateModel : PageViewModelBase
 
     //The basic title and description of the page.
     public string Title => "Concatenate";
-    public string Details => "This page concats media <add more description>.";
+    public string Details => @"This page concatenates animated media into a single file.
+    Choose all of the files you want to operate on and concatenate.
+    Then, click the button below to choose your file path and extension.";
 
     //The "get" variables determine if you can navigate back and forth from a page.
     public override bool CanNavigateNext

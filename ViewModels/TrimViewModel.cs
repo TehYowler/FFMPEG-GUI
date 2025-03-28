@@ -26,7 +26,10 @@ public class TrimModel : PageViewModelBase
 
     //The basic title and description of the page.
     public string Title => "Trim";
-    public string Details => "This page trims images <more details ehre>.";
+    public string Details => @"This page trims animated media from and to a specific time.
+    Choose a single file you want to operate on and trim.
+    Then choose the desired timestamps.
+    Then, click the button below to choose your file path and extension.";
 
     //The "get" variables determine if you can navigate back and forth from a page.
     public override bool CanNavigateNext
@@ -45,10 +48,8 @@ public class TrimModel : PageViewModelBase
             FileDetails from = FileDetails.FromPath(File.ReadAllText(@"./FilePaths.txt").Split("\n")[0]);
             FileDetails to = (FileDetails)await PathTo(control);
 
-            // value-Math.Truncate(value);
-
-            decimal start = decimal.Parse(ControlExtensions.FindControl<TextBox>(control, "StartInput").Text);
-            decimal end = decimal.Parse(ControlExtensions.FindControl<TextBox>(control, "EndInput").Text);
+            decimal start = decimal.Parse(startSeconds);
+            decimal end = decimal.Parse(endSeconds);
 
             string startString = "00:" + start;
             string endString = "00:" + end;

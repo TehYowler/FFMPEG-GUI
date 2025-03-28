@@ -17,7 +17,7 @@ using System.IO;
 using LibVLCSharp.Shared;
 using LibVLCSharp.Avalonia;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
-
+using Avalonia;
 
 public readonly struct FileDetails
 {
@@ -83,6 +83,29 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
         get => filePlay;
         set => this.RaiseAndSetIfChanged(ref filePlay, value);
     }
+
+    private string lastTime = "";
+
+    private long playTime = 0;
+    private string playTimeSeconds = "0";
+    public long PlayTime {
+        get => playTime;
+        set {
+            this.RaiseAndSetIfChanged(ref playTime, value);
+            PlayTimeSeconds = ((float)playTime/1000).ToString();
+            MediaPlayer.Time = Math.Min(playTime,MediaPlayer.Length);
+        }
+    }
+    public string PlayTimeSeconds {
+        get => playTimeSeconds;
+        set => this.RaiseAndSetIfChanged(ref playTimeSeconds, value);
+    }
+
+    private long playLength = 0;
+    public long PlayLength {
+        get => playLength;
+        set => this.RaiseAndSetIfChanged(ref playLength, value);
+    }
     
     static FileSystemWatcher watcher = new(".") {
         Filter = "FilePaths.txt"
@@ -101,11 +124,24 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
         try {
             string[] display = File.ReadAllText(@"./FilePaths.txt").Split("\n");
             if(display.Length != 1 || display[0] == "") {
-                FilePlay = "Playing Nothing";
+                FilePlay = "Playing: Nothing";
                 return;
             }
             FileDetails getDetails = FileDetails.FromPath(display[0]);
-            FilePlay = "Playing: \"" + getDetails.filename + "\"";
+            FilePlay = "Play / Pause: \"" + getDetails.filename + "\"";
+
+            MediaPlayer.Stop();
+            using var media = new Media(_libVlc, new Uri(display[0]));
+            EventHandler<EventArgs>? pauseOnPlay = null;
+            pauseOnPlay = async (sender, e) => {
+                MediaPlayer.Playing -= pauseOnPlay;
+                await Task.Delay(15);
+                MediaPlayer.Pause();
+                PlayLength = MediaPlayer.Length;
+            };
+            MediaPlayer.Playing += pauseOnPlay;
+            MediaPlayer.Play(media);
+            lastTime = display[0];
         }
         catch(Exception ex) {
             Console.WriteLine(ex.Message);
@@ -124,6 +160,17 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
             new TrimModel(this),
             new ConvertModel(this)
         ];
+
+        MediaPlayer.TimeChanged += (object? sender, MediaPlayerTimeChangedEventArgs e) => {
+            playTime = e.Time;
+            PlayLength = Math.Max(MediaPlayer.Length,0);
+        };
+
+        MediaPlayer.MediaChanged += (sender, e) => {
+            PlayLength = Math.Max(MediaPlayer.Length,0);
+            PlayTime = 0;
+            MediaPlayer.Pause();
+        };
 
         // if(Design.IsDesignMode == true){};
 
@@ -151,15 +198,22 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
             try {
                 string[] display = File.ReadAllText(@"./FilePaths.txt").Split("\n");
                 if(display.Length != 1 || display[0] == "") return;
-                using var media = new Media(_libVlc, new Uri(display[0]));
-                MediaPlayer.Play(media);
+                if(lastTime != display[0]) {
+                    MediaPlayer.Stop();
+                    using var media = new Media(_libVlc, new Uri(display[0]));
+                    MediaPlayer.Play(media);
+                    lastTime = display[0];
+                }
+                else {
+                    MediaPlayer.Pause();
+                }
             }
             catch(Exception e) {
                 Console.WriteLine(e.Message);
             }
         }
         
-    public void Stop()
+    public void Unload()
     {            
         MediaPlayer.Stop();
     }
@@ -174,15 +228,15 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
         // GC.SuppressFinalize(this);
     }
 
-    private void PointerEntered(VideoView sender, object e)
-    {
-        sender.IsVisible = true;
-    }
+    // private void PointerEntered(VideoView sender, object e)
+    // {
+    //     sender.IsVisible = true;
+    // }
 
-    private void PointerExited(VideoView sender, object e)
-    {
-        sender.IsVisible = false;
-    }
+    // private void PointerExited(VideoView sender, object e)
+    // {
+    //     sender.IsVisible = false;
+    // }
     
     
 
@@ -193,16 +247,14 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
     // The default is the first page.
     private PageViewModelBase _CurrentPage;
 
-    public PageViewModelBase CurrentPage
-    {
+    public PageViewModelBase CurrentPage {
         get { return _CurrentPage; }
         private set { this.RaiseAndSetIfChanged(ref _CurrentPage, value); }
     }
 
     public ICommand NavigateNextCommand { get; }
 
-    private void NavigateNext()
-    {
+    private void NavigateNext() {
         // get the current index and add 1
         var index = Array.IndexOf(Pages,CurrentPage) + 1;
 
@@ -210,8 +262,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
         CurrentPage = Pages[index];
     }
     public ICommand NavigatePreviousCommand { get; }
-    private void NavigatePrevious()
-    {
+    private void NavigatePrevious() {
         // get the current index and subtract 1
         var index = Array.IndexOf(Pages,CurrentPage) - 1;
 

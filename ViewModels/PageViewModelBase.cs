@@ -70,7 +70,6 @@ public abstract class PageViewModelBase : ViewModelBase
 
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions() {
             Title = "Pick your file path.",
-            FileTypeFilter = new[] { VideoAll },
             SuggestedStartLocation = await topLevel.StorageProvider.TryGetFolderFromPathAsync("../../../Conversion")
         });
 
@@ -100,7 +99,6 @@ public abstract class PageViewModelBase : ViewModelBase
 
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions() {
             Title = "Pick one or more file paths.",
-            FileTypeFilter = new[] { VideoAll },
             AllowMultiple = true,
             SuggestedStartLocation = await topLevel.StorageProvider.TryGetFolderFromPathAsync("../../../Conversion")
         });
@@ -243,9 +241,24 @@ public abstract class PageViewModelBase : ViewModelBase
         }
         
     }
-
-
     
+    public static void Stitch(IEnumerable<FileDetails> from, FileDetails to, string duration) {
+
+        IEnumerable<string> fileTo = from.Select(e => "file '" + e.absolutePath + "'\n" + "duration " + duration);
+
+        File.WriteAllText("./FilePathsList.txt",String.Join("\n",fileTo));
+
+        try {
+            runCommand("ffmpeg",["-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
+        }
+
+        catch {
+            Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
+            return;
+        }
+        
+    }
+
     public MainWindowViewModel? mainWindow = null;
 
 }
