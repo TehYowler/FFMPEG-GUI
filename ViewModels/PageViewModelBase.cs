@@ -16,6 +16,7 @@ using System.Diagnostics;
 using Avalonia.Metadata;
 using System.Linq;
 using CliWrap;
+using Tmds.DBus.Protocol;
 
 public abstract class PageViewModelBase : ViewModelBase
 {
@@ -28,7 +29,7 @@ public abstract class PageViewModelBase : ViewModelBase
     private string operateGeneric = "Press the button below to choose the files you want to operate on.";
     public string OperateGeneric { get { return operateGeneric; } set { operateGeneric = value; } }
 
-    private string fileUpdate = "\nSelect file(s) to operate on at the bottom left...\n";
+    private string fileUpdate = "\nSelect file(s) to operate on. Selecting a single file will allow you to preview it in the video player if it is an applicable file.\n";
     public string FileUpdate {
         get => fileUpdate;
         set => this.RaiseAndSetIfChanged(ref fileUpdate, value);
@@ -39,7 +40,6 @@ public abstract class PageViewModelBase : ViewModelBase
     }
 
     private MainWindowViewModel _overseer;
-
 
     public void ClickHandle() {
         Console.WriteLine(TextGeneric);
@@ -146,7 +146,11 @@ public abstract class PageViewModelBase : ViewModelBase
         
     }
 
-    public static async Task SetFilePaths(Control control) {
+    public async Task SetFilePaths(Control control) {
+        await setFilePaths(control);
+    }
+
+    public static async Task setFilePaths(Control control) {
         List<FileDetails>? filePaths = await PathFromAll(control);
         if(filePaths == null) return;
 
@@ -214,7 +218,7 @@ public abstract class PageViewModelBase : ViewModelBase
             //     Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
             // }
 
-            runCommand("ffmpeg",["-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
+            runCommand("ffmpeg",["-y", "-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
         }
 
         catch {
@@ -232,7 +236,7 @@ public abstract class PageViewModelBase : ViewModelBase
         // Console.WriteLine(fullCommand);
 
         try {
-            runCommand("ffmpeg",["-ss", secondsStart, "-to", secondsEnd, "-i", from.absolutePath, "-c", "copy", to.absolutePath]);
+            runCommand("ffmpeg",["-y", "-ss", secondsStart, "-to", secondsEnd, "-i", from.absolutePath, "-c", "copy", to.absolutePath]);
         }
 
         catch {
@@ -249,11 +253,31 @@ public abstract class PageViewModelBase : ViewModelBase
         File.WriteAllText("./FilePathsList.txt",String.Join("\n",fileTo));
 
         try {
-            runCommand("ffmpeg",["-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
+            runCommand("ffmpeg",["-y", "-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
         }
 
         catch {
             Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
+            return;
+        }
+        
+    }
+
+    public static void StitchGif(IEnumerable<FileDetails> from, FileDetails to, decimal duration) {
+
+        List<string> commandArgs = [];
+
+        foreach(var x in from) {
+            commandArgs.Add("-i");
+            commandArgs.Add(x.absolutePath);
+        }
+
+        try {
+            runCommand("ffmpeg",["-y", "-framerate",(1/duration).ToString(),..commandArgs, to.absolutePath]);
+        }
+
+        catch {
+            Console.WriteLine($"FAILED to convert \"{String.Join(", ",commandArgs)}\"!");
             return;
         }
         

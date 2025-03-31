@@ -44,10 +44,14 @@ public class StitchModel : PageViewModelBase
             FileDetails to = (FileDetails)await PathTo(control);
 
             decimal frame = decimal.Parse(FrameLength);
-
             string frameString = "00:" + frame;
 
-            Stitch(from,to, FrameLength);
+            if(to.extention == "gif") {
+                StitchGif(from,to, frame);
+            }
+            else {
+                Stitch(from,to, FrameLength);
+            }
         }
         catch{}
         

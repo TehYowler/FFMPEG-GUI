@@ -16,7 +16,8 @@ public class ConcatenateModel : PageViewModelBase
     public string Title => "Concatenate";
     public string Details => @"This page concatenates animated media into a single file.
     Choose all of the files you want to operate on and concatenate.
-    Then, click the button below to choose your file path and extension.";
+    Then, click the button below to choose your file path and extension.
+    Make sure that all concatenated files are the same type!";
 
     //The "get" variables determine if you can navigate back and forth from a page.
     public override bool CanNavigateNext

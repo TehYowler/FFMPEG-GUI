@@ -17,24 +17,38 @@
     </Design.DataContext>
 
     <StackPanel>
-        <Border Margin="5" CornerRadius="10" Background="LightBlue">
+        <Border Margin="5" CornerRadius="10" Background="rgb(30, 187, 114)">
             <TextBlock Margin="5"
                 FontSize="24" 
                 HorizontalAlignment="Center"
                 Text="{Binding Title}">
             </TextBlock>
         </Border>
-        
-        <TextBlock FontSize="16"
-                   Text="{Binding Details}"
-                   TextWrapping="Wrap" />
-        
-        <TextBlock
-            FontSize="16"
-            Text="{Binding FileUpdate}"
-            TextWrapping="Wrap"/>
-            
-        <Button Command="{Binding PerformConcatenate}" CommandParameter="{Binding $self}">Concatenate To</Button>
+
+
+        <DockPanel LastChildFill="True" Width="1100" HorizontalAlignment="Center">
+            <Border Width="650" Padding="15" BorderBrush="Black" BorderThickness="1" CornerRadius="10" Background="rgb(90, 90, 90)" DockPanel.Dock="Left">
+                <ScrollViewer Height="200">
+                    <StackPanel>
+                        <TextBlock FontSize="16"
+                            Text="{Binding Details}"
+                            TextWrapping="Wrap" />
+                        
+                        <Button Command="{Binding SetFilePaths}" CommandParameter="{Binding $self}" Content="Pick File Paths" />
+                    
+                        <TextBlock
+                            FontSize="16"
+                            Text="{Binding FileUpdate}"
+                            TextWrapping="Wrap"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <Border Width="450" BorderBrush="Black" BorderThickness="1" CornerRadius="10" Background="rgb(45, 35, 125)">
+                <Button HorizontalAlignment="Center" Command="{Binding PerformConcatenate}" CommandParameter="{Binding $self}">Concatenate Media</Button>
+            </Border>
+
+        </DockPanel>
 
     </StackPanel>
 

@@ -6,6 +6,8 @@ using System.Text;
 
 namespace FFMPEG_GUI;
 
+
+
 sealed class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -21,8 +23,7 @@ sealed class Program
         File.WriteAllText("./FilePaths.txt","");
 
 
-        BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
 
     // Avalonia configuration, don't remove; also used by visual designer.

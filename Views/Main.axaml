@@ -17,7 +17,7 @@
 
 	<StackPanel>
         
-        <Border Margin="5" CornerRadius="10" Background="LightBlue">
+        <Border Margin="5" CornerRadius="10" Background="rgb(30, 187, 114)">
             <TextBlock Margin="5"
                 FontSize="24" 
                 HorizontalAlignment="Center"
@@ -25,14 +25,18 @@
             </TextBlock>
         </Border>
 
-        <TextBlock FontSize="16"
-                   Text="{Binding Details}"
-                   TextWrapping="Wrap" />
+        <Border Margin="15" Padding="15" CornerRadius="10" Background="rgb(90, 90, 90)">
+            <ScrollViewer Height="240">
+                <StackPanel>
+                    <TextBlock FontSize="16" Text="{Binding Details}" TextWrapping="Wrap" />
+
+                    <Button Command="{Binding SetFilePaths}" CommandParameter="{Binding $self}" Content="Pick File Paths" />
+
+                    <TextBlock FontSize="16" Text="{Binding FileUpdate}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border> 
         
-        <TextBlock
-            FontSize="16"
-            Text="{Binding FileUpdate}"
-            TextWrapping="Wrap"/>
         
         <!-- <TextBox Text="{Binding TextGeneric}"/>
         <Button Command="{Binding ClickHandle}">+++</Button> -->

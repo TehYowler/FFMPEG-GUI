@@ -9,28 +9,37 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="FFMPEG_GUI"
-        WindowState="Maximized">
+        WindowState="Maximized"
+        RequestedThemeVariant="Dark">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
     
-    <Grid RowDefinitions="*,Auto,Auto" Margin="10">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="10">
 
-        <TransitioningContentControl Grid.Row="0" Content="{Binding CurrentPage}" />
+        <Menu  Grid.Row="0">
+            <MenuItem Header="_Main Menu" Command="{Binding NavigateTo}" CommandParameter="0" />
+            <MenuItem Header="_Concatenate" Command="{Binding NavigateTo}" CommandParameter="1" />
+            <MenuItem Header="_Stitch" Command="{Binding NavigateTo}" CommandParameter="2" />
+            <MenuItem Header="_Trim" Command="{Binding NavigateTo}" CommandParameter="3" />
+            <MenuItem Header="_Convert" Command="{Binding NavigateTo}" CommandParameter="4" />
+        </Menu>
 
-        <v:Video Grid.Row="1"/>
+        <TransitioningContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="5"
+        <v:Video Grid.Row="2"/>
+
+        <!-- <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="5"
 					HorizontalAlignment="Right">
-            
-            
 
-            <Button Command="{Binding SetFilePaths}" CommandParameter="{Binding $self}" Content="Pick File Paths" />
-            <Button Command="{Binding NavigatePreviousCommand}" Content="Back" />
-            <Button Command="{Binding NavigateNextCommand}" Content="Next" />
-        </StackPanel>
+            <Button Command="{Binding NavigateTo}" CommandParameter="0" Content="Main" />
+            <Button Command="{Binding NavigateTo}" CommandParameter="1" Content="Concatenate" />
+            <Button Command="{Binding NavigateTo}" CommandParameter="2" Content="Stitch" />
+            <Button Command="{Binding NavigateTo}" CommandParameter="3" Content="Trim" />
+            <Button Command="{Binding NavigateTo}" CommandParameter="4" Content="Convert" />
+        </StackPanel> -->
     </Grid>
 
 </Window>

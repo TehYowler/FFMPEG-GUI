@@ -15,23 +15,24 @@
 		<vm:MainWindowViewModel />
 	</Design.DataContext>
 
-    <Grid RowDefinitions="Auto, Auto, 300, Auto">
-        <Label Grid.Row="0" HorizontalAlignment="Center">Video Player</Label>
+    <Grid RowDefinitions="Auto, Auto, 500">
+        <Label Grid.Row="0" FontSize="24" HorizontalAlignment="Center">Video Player</Label>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" Background="#900000FF" Spacing="20">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" Background="rgb(25, 100, 145)" Spacing="20">
             <Button Command="{Binding Play}" Margin="20" Content="{Binding FilePlay}"/>
             <Button Command="{Binding Unload}" Margin="20" Content="Unload Content"/>
-            <TextBlock Text="{Binding PlayTimeSeconds}" Margin="20"/>
+            <TextBlock Background="rgb(50, 50, 50)" Margin="20" Padding="6" Text="{Binding PlayTimeSeconds}"/>
         </StackPanel>
-
-        <vlc:VideoView Grid.Row="2" MediaPlayer="{Binding MediaPlayer}"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch">
-        </vlc:VideoView>
-
-            <Slider Grid.Row="3" Value="{Binding PlayTime}" Maximum="{Binding PlayLength}"></Slider>
-
         
+        <Border Padding="5" Grid.Row="2" Margin="5" CornerRadius="0 0 10 10" Background="rgb(55, 55, 55)">
+            <StackPanel>
+                <vlc:VideoView Height="435" ZIndex="1000" MediaPlayer="{Binding MediaPlayer}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch">
+                </vlc:VideoView>
+                <Slider Width="1200" Grid.Row="3" Value="{Binding PlayTime}" Maximum="{Binding PlayLength}"></Slider>
+            </StackPanel>
+        </Border>
 
     </Grid>
 

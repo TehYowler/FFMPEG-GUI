@@ -14,7 +14,7 @@
 	</Design.DataContext>
 
 	<StackPanel>
-        <Border Margin="5" CornerRadius="10" Background="LightBlue">
+        <Border Margin="5" CornerRadius="10" Background="rgb(30, 187, 114)">
             <TextBlock Margin="5"
                 FontSize="24" 
                 HorizontalAlignment="Center"
@@ -22,23 +22,47 @@
             </TextBlock>
         </Border>
 
-        <TextBlock FontSize="16"
-                   Text="{Binding Details}"
-                   TextWrapping="Wrap" />
-        
-        <TextBlock
-            FontSize="16"
-            Text="{Binding FileUpdate}"
-            TextWrapping="Wrap"/>
+        <DockPanel LastChildFill="True" Width="1100" HorizontalAlignment="Center">
+            <Border Width="650" Padding="15" BorderBrush="Black" BorderThickness="1" CornerRadius="10" Background="rgb(90, 90, 90)" DockPanel.Dock="Left">
+                <ScrollViewer Height="200">
+                    <StackPanel>
+                        <TextBlock FontSize="16"
+                            Text="{Binding Details}"
+                            TextWrapping="Wrap" />
+                        
+                        <Button Command="{Binding SetFilePaths}" CommandParameter="{Binding $self}" Content="Pick File Paths" />
+                    
+                        <TextBlock
+                            FontSize="16"
+                            Text="{Binding FileUpdate}"
+                            TextWrapping="Wrap"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
 
-        <TextBox
-            FontSize="16"
-            Watermark="Frame length (in seconds)"
-            Text="{Binding FrameLength}"
-            TextWrapping="Wrap"
-            Name="StartInput"/>
-        
-        <Button Command="{Binding PerformStitch}" CommandParameter="{Binding $self}">Stitch Images As</Button>
+            <Border Width="450" BorderBrush="Black" BorderThickness="1" CornerRadius="10" Background="rgb(45, 35, 125)">
+                <StackPanel VerticalAlignment="Center">
+
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="16"
+                        Text="Frame length (in seconds):"
+                        TextWrapping="Wrap"/>
+
+                    <TextBox
+                            Width="250"
+                            HorizontalAlignment="Center"
+                            FontSize="16"
+                            Watermark=""
+                            Text="{Binding FrameLength}"
+                            TextWrapping="Wrap"
+                            Name="StartInput"/>
+                        
+                    <Button HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding PerformStitch}" CommandParameter="{Binding $self}">Stitch Images</Button>
+                </StackPanel>
+            </Border>
+
+        </DockPanel>
 
     </StackPanel>
     

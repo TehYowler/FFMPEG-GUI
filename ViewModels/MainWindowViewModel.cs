@@ -19,63 +19,6 @@ using LibVLCSharp.Avalonia;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 using Avalonia;
 
-public readonly struct FileDetails
-{
-    public FileDetails(string Path, string Filename, string Directory, string Extention, string FilenamePure)
-    {
-        absolutePath = Path;
-        filename = Filename;
-        filenamePure = FilenamePure;
-        directory = Directory;
-        extention = Extention;
-    }
-
-    public string absolutePath { get; init; }
-    public string filename { get; init; }
-    public string filenamePure { get; init; }
-    public string directory { get; init; }
-    public string extention { get; init; }
-
-    public override string ToString() => $"({absolutePath})";
-
-    public static FileDetails FromFile(IStorageFile file) {
-        string path = Uri.UnescapeDataString(file.Path.AbsolutePath);
-        string[] split = path.Split("/");
-        
-        string filename = split.Last();
-        string extention = filename.Split(".").Last();
-        string filenamePure = String.Join<string>("/", new ArraySegment<string>( filename.Split("."), 0, filename.Split(".").Length - 1 ));
-
-        string directory = String.Join<string>("/", new ArraySegment<string>( split, 0, split.Length - 1 )) + "/";
-
-        return new FileDetails(path,filename,directory,extention,filenamePure);
-
-        // Console.WriteLine(path);
-        // Console.WriteLine(filename);
-        // Console.WriteLine(directory);
-        // Console.WriteLine(extention);
-        // Console.WriteLine(filenamePure);
-    }
-
-    public static FileDetails FromPath(string absolutePath) {
-        string[] split = absolutePath.Split("/");
-        
-        string filename = split.Last();
-        string extention = filename.Split(".").Last();
-        string filenamePure = String.Join<string>("/", new ArraySegment<string>( filename.Split("."), 0, filename.Split(".").Length - 1 ));
-
-        string directory = String.Join<string>("/", new ArraySegment<string>( split, 0, split.Length - 1 )) + "/";
-
-        return new FileDetails(absolutePath,filename,directory,extention,filenamePure);
-
-        // Console.WriteLine(path);
-        // Console.WriteLine(filename);
-        // Console.WriteLine(directory);
-        // Console.WriteLine(extention);
-        // Console.WriteLine(filenamePure);
-    }
-}
-
 public class MainWindowViewModel : ViewModelBase, IDisposable {
 
     private string filePlay = "Playing: Nothing";
@@ -116,9 +59,20 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
     public MediaPlayer MediaPlayer { get; }
 
     private void OnChanged(object sender, FileSystemEventArgs e) {
-        string FileUpdate = "\nOperating on files:\n" + File.ReadAllText(@"./FilePaths.txt");
-        foreach(PageViewModelBase model in Pages) {
-            model.FileUpdate = FileUpdate;
+
+        string fileNames = File.ReadAllText(@"./FilePaths.txt");;
+
+        if(fileNames.Trim() != "") {
+            string FileUpdate = "\nOperating on files:\n" + fileNames;
+            foreach(PageViewModelBase model in Pages) {
+                model.FileUpdate = FileUpdate;
+            }
+        }
+        else {
+            string FileUpdate = "\nSelect file(s) to operate on. Selecting a single file will allow you to preview it in the video player if it is an applicable file.\n" + fileNames;
+            foreach(PageViewModelBase model in Pages) {
+                model.FileUpdate = FileUpdate;
+            }
         }
 
         try {
@@ -255,23 +209,23 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
     public ICommand NavigateNextCommand { get; }
 
     private void NavigateNext() {
-        // get the current index and add 1
         var index = Array.IndexOf(Pages,CurrentPage) + 1;
 
-        //  /!\ Be aware that we have no check if the index is valid. You may want to add it on your own. /!\
         CurrentPage = Pages[index];
     }
     public ICommand NavigatePreviousCommand { get; }
     private void NavigatePrevious() {
-        // get the current index and subtract 1
         var index = Array.IndexOf(Pages,CurrentPage) - 1;
 
-        //  /!\ Be aware that we have no check if the index is valid. You may want to add it on your own. /!\
+        CurrentPage = Pages[index];
+    }
+
+    public void NavigateTo(int index) {
         CurrentPage = Pages[index];
     }
 
     public static async Task<List<FileDetails>?> PathFromAll(Control control) => await PageViewModelBase.PathFromAll(control);
 
-    public async Task SetFilePaths(Control control) => await PageViewModelBase.SetFilePaths(control);
+    public async Task SetFilePaths(Control control) => await PageViewModelBase.setFilePaths(control);
 
 }
