@@ -5,8 +5,9 @@ using System.IO;
 using System.Text;
 
 namespace FFMPEG_GUI;
-
-
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 sealed class Program
 {
@@ -16,9 +17,10 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)  {
 
-        // StreamWriter sw = new("./FilePaths.txt", false);
-        // sw.Write("");
-        // sw.Close();
+        if(!File.Exists("ffmpeg.exe") && RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+            System.IO.Compression.ZipFile.ExtractToDirectory("../../../ffmpeg-6.1-win-64.zip", "ffmpeg-extract");
+            File.Move("ffmpeg-extract/ffmpeg.exe","./ffmpeg.exe");
+        }
 
         File.WriteAllText("./FilePaths.txt","");
 
