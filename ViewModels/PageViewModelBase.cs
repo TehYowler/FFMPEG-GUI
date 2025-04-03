@@ -214,8 +214,8 @@ public abstract class PageViewModelBase : ViewModelBase
         filterComplexString += $" concat=n={i}:v=1:a=1 [v] [a]";
 
         try {
-            Console.WriteLine(string.Join(" ", fileArgs));
-            Console.WriteLine(filterComplexString);
+            // Console.WriteLine(string.Join(" ", fileArgs));
+            // Console.WriteLine(filterComplexString);
             runCommand("ffmpeg",["-y", ..fileArgs,"-filter_complex", filterComplexString, "-map", "[v]", "-map", "[a]", to.absolutePath]);
         }
 
@@ -266,13 +266,21 @@ public abstract class PageViewModelBase : ViewModelBase
 
         List<string> commandArgs = [];
 
-        foreach(var x in from) {
-            commandArgs.Add("-i");
-            commandArgs.Add(x.absolutePath);
+        Directory.CreateDirectory("file-splice"); //If the directory already exists, do nothing
+
+        foreach(FileInfo file in new DirectoryInfo("file-splice").EnumerateFiles()) {
+            file.Delete();
         }
 
+        int i = 0;
+        foreach(FileDetails file in from) {
+            File.CreateSymbolicLink($"file-splice/image{i.ToString().PadLeft(4,'0')}.png", file.absolutePath);
+            i += 1;
+        }
+
+
         try {
-            runCommand("ffmpeg",["-y", "-framerate",(1/duration).ToString(),..commandArgs, to.absolutePath]);
+            runCommand("ffmpeg",["-y", "-framerate",(1/duration).ToString(), "-f", "image2", "-i", "file-splice/image%04d.png", to.absolutePath]);
         }
 
         catch {
