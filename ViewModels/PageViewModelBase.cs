@@ -198,31 +198,30 @@ public abstract class PageViewModelBase : ViewModelBase
 
     public static void Concatenate(IEnumerable<FileDetails> from, FileDetails to) {
 
-        IEnumerable<string> fileTo = from.Select(e => "file '" + e.absolutePath + "'");
+        List<string> fileArgs = [];
+        List<string> avArgs = [];
 
-        File.WriteAllText("./FilePathsList.txt",String.Join("\n",fileTo));
+        int i = 0;
+        foreach(FileDetails detail in from) {
+            fileArgs.Add("-i");
+            fileArgs.Add(detail.absolutePath);
+            avArgs.Add($"[{i}:v]");
+            avArgs.Add($"[{i}:a]");
+            i += 1;
+        }
 
-        // string fullCommand = $"-safe 0 -f concat -i ./FilePathsList.txt -c:v libx264 -preset ultrafast {to.absolutePath}";
-
-        // Console.WriteLine(fullCommand);
+        string filterComplexString = string.Join(" ", avArgs);
+        filterComplexString += $" concat=n={i}:v=1:a=1 [v] [a]";
 
         try {
-            // Process process;
-
-            // runCommand("ffmpeg",fullCommand, out process,true,true);
-
-            // if (process.ExitCode == 0) {
-            //     Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
-            // }
-            // else {
-            //     Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
-            // }
-
-            runCommand("ffmpeg",["-y", "-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
+            Console.WriteLine(string.Join(" ", fileArgs));
+            Console.WriteLine(filterComplexString);
+            runCommand("ffmpeg",["-y", ..fileArgs,"-filter_complex", filterComplexString, "-map", "[v]", "-map", "[a]", to.absolutePath]);
         }
 
         catch {
-            Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileTo)}\"!");
+            IEnumerable<string> fileString = from.Select(e => e.absolutePath);
+            Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileString)}\"!");
             return;
         }
         
