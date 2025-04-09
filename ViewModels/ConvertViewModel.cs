@@ -16,7 +16,7 @@ public class ConvertModel : PageViewModelBase
     }
 
     //The basic title and description of the page.
-    public string Title => "Convert.";
+    public string Title => "Convert";
     public string Details => @"This page converts animated media from one type to another.
     The first file path from the operating file paths is what will be converted from.
     Then, click the button below to choose your file path and extension.";
