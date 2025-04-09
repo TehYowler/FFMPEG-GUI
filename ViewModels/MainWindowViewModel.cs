@@ -60,7 +60,15 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
 
     private void OnChanged(object sender, FileSystemEventArgs e) {
 
-        string fileNames = File.ReadAllText(@"./FilePaths.txt");;
+        string fileNames;
+
+        try {
+            fileNames = File.ReadAllText(@"./FilePaths.txt");
+        }
+        catch {
+            Console.WriteLine("Could not perform OnChanged function.");
+            return;
+        }
 
         if(fileNames.Trim() != "") {
             string FileUpdate = "\nOperating on files:\n" + fileNames;
@@ -142,7 +150,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
         NavigatePreviousCommand = ReactiveCommand.Create(NavigatePrevious, canNavPrev);
     }
 
-    public void Play()
+    public async void Play()
         {
             if (Design.IsDesignMode)
             {
@@ -155,8 +163,10 @@ public class MainWindowViewModel : ViewModelBase, IDisposable {
                 if(lastTime != display[0]) {
                     MediaPlayer.Stop();
                     using var media = new Media(_libVlc, new Uri(display[0]));
+                    await Task.Delay(50);
                     MediaPlayer.Play(media);
                     lastTime = display[0];
+                    await Task.Delay(50);
                 }
                 else {
                     MediaPlayer.Pause();
