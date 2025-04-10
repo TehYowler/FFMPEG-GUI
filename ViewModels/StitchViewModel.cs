@@ -15,7 +15,7 @@ public class StitchModel : PageViewModelBase
 
     //The basic title and description of the page.
     public string Title => "Stitch";
-    public string Details => @"This page stitches multiple images into a single piece of animated media.
+    public string Details => @"This page stitches multiple images to create a single piece of animated media like a video or gif.
     Choose the files you want to operate on and make into a piece of media.
     Then choose the desired framerate.
     Then, click the button below to choose your file path and extension.";
