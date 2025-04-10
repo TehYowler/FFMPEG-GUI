@@ -287,28 +287,31 @@ public abstract class PageViewModelBase : ViewModelBase
 
     public async static void StitchGif(IEnumerable<FileDetails> from, FileDetails to, decimal duration) {
 
-        List<string> commandArgs = [];
-
-        Directory.CreateDirectory("file-splice"); //If the directory already exists, do nothing
-
-        foreach(FileInfo file in new DirectoryInfo("file-splice").EnumerateFiles()) {
-            file.Delete();
-        }
-
-        int i = 0;
-        foreach(FileDetails file in from) {
-            File.CreateSymbolicLink($"file-splice/image{i.ToString().PadLeft(4,'0')}.png", file.absolutePath);
-            i += 1;
-        }
 
 
         try {
-            BufferedCommandResult result = await RunCommand("ffmpeg",["-y", "-framerate",(1/duration).ToString(), "-f", "image2", "-i", "file-splice/image%04d.png", to.absolutePath]);
+            Directory.CreateDirectory("file-splice"); //If the directory already exists, do nothing
+
+            String extention = from.ElementAt(0).extention;
+
+            foreach(FileInfo file in new DirectoryInfo("file-splice").EnumerateFiles()) {
+                file.Delete();
+            }
+
+            int i = 0;
+            foreach(FileDetails file in from) {
+                File.CreateSymbolicLink($"file-splice/image{i.ToString().PadLeft(4,'0')}." + extention, file.absolutePath);
+                i += 1;
+            }
+
+            BufferedCommandResult result = await RunCommand("ffmpeg",["-y", "-framerate",(1/duration).ToString(), "-f", "image2", "-i", "file-splice/image%04d." + extention, to.absolutePath]);
             if(result.ExitCode != 0) throw new Exception();
         }
 
         catch {
-            Console.WriteLine($"FAILED to convert \"{String.Join(", ",commandArgs)}\"!");
+            IEnumerable<string> fileTo = from.Select(e => e.absolutePath);
+
+            Console.WriteLine($"FAILED to convert: \"{String.Join("\n",fileTo)}\"!");
             return;
         }
         
