@@ -26,7 +26,7 @@ public class TrimModel : PageViewModelBase
 
     //The basic title and description of the page.
     public string Title => "Trim";
-    public string Details => @"This page trims animated media from and to a specific time.
+    public string Details => @"This page trims the duration of a SINGLE video or gif from and to a specific time.
     Choose a single file you want to operate on and trim.
     Then choose the desired timestamps.
     Then, click the button below to choose your file path and extension.";

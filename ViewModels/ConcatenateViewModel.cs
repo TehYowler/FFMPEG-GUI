@@ -14,7 +14,7 @@ public class ConcatenateModel : PageViewModelBase
 
     //The basic title and description of the page.
     public string Title => "Concatenate";
-    public string Details => @"This page concatenates animated media into a single file.
+    public string Details => @"This page concatenates MULTIPLE videos or gifs into a single file.
     Choose all of the files you want to operate on and concatenate.
     Then, click the button below to choose your file path and extension.
     Make sure that all concatenated files are the same type and resolution!";
