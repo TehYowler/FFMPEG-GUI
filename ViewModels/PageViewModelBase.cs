@@ -17,6 +17,9 @@ using Avalonia.Metadata;
 using System.Linq;
 using CliWrap;
 using Tmds.DBus.Protocol;
+using System.IO.Pipelines;
+using CliWrap.Buffered;
+using System.Reflection.Metadata.Ecma335;
 
 public abstract class PageViewModelBase : ViewModelBase
 {
@@ -51,7 +54,7 @@ public abstract class PageViewModelBase : ViewModelBase
         MimeTypes = new[] { "video/*" }
     };
 
-    private static void runCommand(String program,String command, out Process proc, bool startImmediate=false,bool waitFor = true) {
+    private static void RunCommand(String program,String command, out Process proc, bool startImmediate=false,bool waitFor = true) {
         proc = new Process() { EnableRaisingEvents = true, StartInfo = new ProcessStartInfo(program,command){RedirectStandardOutput = true} };
         if(startImmediate) {
             proc.Start();
@@ -59,8 +62,8 @@ public abstract class PageViewModelBase : ViewModelBase
         }
     }
 
-    private static void runCommand(String program,IEnumerable<string> command) {
-        Cli.Wrap(program).WithArguments(command).ExecuteAsync();;
+    private static CommandTask<BufferedCommandResult> RunCommand(String program,IEnumerable<string> command) {
+        return Cli.Wrap(program).WithArguments(command).ExecuteBufferedAsync();
     }
 
     public static async Task<FileDetails?> PathFrom(Control control) {
@@ -169,24 +172,14 @@ public abstract class PageViewModelBase : ViewModelBase
         }
 
     }
-    public static void Convert(FileDetails from, FileDetails to) {
+    public async static void Convert(FileDetails from, FileDetails to) {
 
         // string fullCommand = $"-y -i '{from.absolutePath.Replace("'",@"'\''")}' '{to.absolutePath.Replace("'",@"'\''")}'";
         // string fullCommand = $"-y -i {from.absolutePath} {to.absolutePath}";
 
         try {
-            // Process process;
-
-            // runCommand("ffmpeg",fullCommand, out process,true,true);
-
-            // if (process.ExitCode == 0) {
-            //     Console.WriteLine($"Sucessfully converted file \"{to.absolutePath}\"!");
-            // }
-            // else {
-            //     Console.WriteLine($"FAILED to convert \"{from.absolutePath}\"!");
-            // }
-
-            runCommand("ffmpeg",["-y","-i",from.absolutePath,to.absolutePath]);
+            BufferedCommandResult result = await RunCommand("ffmpeg",["-y","-i",from.absolutePath,to.absolutePath]);
+            if(result.ExitCode != 0) throw new Exception();
         }
 
         catch {
@@ -196,38 +189,66 @@ public abstract class PageViewModelBase : ViewModelBase
         
     }
 
-    public static void Concatenate(IEnumerable<FileDetails> from, FileDetails to) {
+    public async static void Concatenate(IEnumerable<FileDetails> from, FileDetails to) {
 
-        List<string> fileArgs = [];
-        List<string> avArgs = [];
-
-        int i = 0;
-        foreach(FileDetails detail in from) {
-            fileArgs.Add("-i");
-            fileArgs.Add(detail.absolutePath);
-            avArgs.Add($"[{i}:v]");
-            avArgs.Add($"[{i}:a]");
-            i += 1;
-        }
-
-        string filterComplexString = string.Join(" ", avArgs);
-        filterComplexString += $" concat=n={i}:v=1:a=1 [v] [a]";
-
+        //First, try for both audio and video streams
         try {
-            // Console.WriteLine(string.Join(" ", fileArgs));
-            // Console.WriteLine(filterComplexString);
-            runCommand("ffmpeg",["-y", ..fileArgs,"-filter_complex", filterComplexString, "-map", "[v]", "-map", "[a]", to.absolutePath]);
+            List<string> fileArgs = [];
+            List<string> avArgs = [];
+
+            int i = 0;
+            foreach(FileDetails detail in from) {
+                fileArgs.Add("-i");
+                fileArgs.Add(detail.absolutePath);
+                avArgs.Add($"[{i}:v]");
+                avArgs.Add($"[{i}:a]");
+                i += 1;
+            }
+
+            string filterComplexString = string.Join(" ", avArgs);
+            filterComplexString += $" concat=n={i}:v=1:a=1 [v] [a]";
+            BufferedCommandResult result = await RunCommand("ffmpeg",["-y", ..fileArgs,"-filter_complex", filterComplexString, "-map", "[v]", "-map", "[a]", to.absolutePath]);
+            if(result.ExitCode != 0) throw new Exception();
         }
 
         catch {
-            IEnumerable<string> fileString = from.Select(e => e.absolutePath);
-            Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileString)}\"!");
-            return;
+            //Then, try for only video stream
+            try {
+                List<string> fileArgs = [];
+                List<string> avArgs = [];
+
+                int i = 0;
+                foreach(FileDetails detail in from) {
+                    fileArgs.Add("-i");
+                    fileArgs.Add(detail.absolutePath);
+                    avArgs.Add($"[{i}:v]");
+                    i += 1;
+                }
+
+                string filterComplexString = string.Join(" ", avArgs);
+                filterComplexString += $" concat=n={i}:v=1:a=0 [v]";
+                Console.WriteLine("ffmpeg");
+                Console.WriteLine("-y");
+                Console.WriteLine(String.Join(' ',fileArgs));
+                Console.WriteLine("-filter_complex");
+                Console.WriteLine(filterComplexString);
+                Console.WriteLine("-map");
+                Console.WriteLine("[v]");
+                Console.WriteLine(to.absolutePath);
+                BufferedCommandResult result = await RunCommand("ffmpeg",["-y", ..fileArgs,"-filter_complex", filterComplexString, "-map", "[v]", to.absolutePath]);
+                if(result.ExitCode != 0) throw new Exception();
+            }
+            //Otherwise report error
+            catch {
+                IEnumerable<string> fileString = from.Select(e => e.absolutePath);
+                Console.WriteLine($"FAILED to convert \"{String.Join(", ",fileString)}\"!");
+                return;
+            }
         }
         
     }
 
-    public static void Trim(FileDetails from, FileDetails to, string secondsStart, string secondsEnd) {
+    public async static void Trim(FileDetails from, FileDetails to, string secondsStart, string secondsEnd) {
 
         // string fullCommand = $"-safe 0 -f concat -i ./FilePathsList.txt -c:v libx264 -preset ultrafast {to.absolutePath}";
         // string fullCommand = $"-ss {secondsStart} -to {secondsEnd} -i {from.absolutePath} -c copy {to.absolutePath}";
@@ -235,7 +256,8 @@ public abstract class PageViewModelBase : ViewModelBase
         // Console.WriteLine(fullCommand);
 
         try {
-            runCommand("ffmpeg",["-y", "-ss", secondsStart, "-to", secondsEnd, "-i", from.absolutePath, "-c", "copy", to.absolutePath]);
+            BufferedCommandResult result = await RunCommand("ffmpeg",["-y", "-ss", secondsStart, "-to", secondsEnd, "-i", from.absolutePath, "-c", "copy", to.absolutePath]);
+            if(result.ExitCode != 0) throw new Exception();
         }
 
         catch {
@@ -245,14 +267,15 @@ public abstract class PageViewModelBase : ViewModelBase
         
     }
     
-    public static void Stitch(IEnumerable<FileDetails> from, FileDetails to, string duration) {
+    public async static void Stitch(IEnumerable<FileDetails> from, FileDetails to, string duration) {
 
         IEnumerable<string> fileTo = from.Select(e => "file '" + e.absolutePath + "'\n" + "duration " + duration);
 
         File.WriteAllText("./FilePathsList.txt",String.Join("\n",fileTo));
 
         try {
-            runCommand("ffmpeg",["-y", "-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
+            BufferedCommandResult result = await RunCommand("ffmpeg",["-y", "-safe", "0", "-f", "concat", "-i", "./FilePathsList.txt", "-c:v", "libx264", "-preset", "ultrafast", to.absolutePath]);
+            if(result.ExitCode != 0) throw new Exception();
         }
 
         catch {
@@ -262,7 +285,7 @@ public abstract class PageViewModelBase : ViewModelBase
         
     }
 
-    public static void StitchGif(IEnumerable<FileDetails> from, FileDetails to, decimal duration) {
+    public async static void StitchGif(IEnumerable<FileDetails> from, FileDetails to, decimal duration) {
 
         List<string> commandArgs = [];
 
@@ -280,7 +303,8 @@ public abstract class PageViewModelBase : ViewModelBase
 
 
         try {
-            runCommand("ffmpeg",["-y", "-framerate",(1/duration).ToString(), "-f", "image2", "-i", "file-splice/image%04d.png", to.absolutePath]);
+            BufferedCommandResult result = await RunCommand("ffmpeg",["-y", "-framerate",(1/duration).ToString(), "-f", "image2", "-i", "file-splice/image%04d.png", to.absolutePath]);
+            if(result.ExitCode != 0) throw new Exception();
         }
 
         catch {
