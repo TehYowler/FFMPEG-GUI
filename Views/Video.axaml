@@ -15,13 +15,26 @@
 		<vm:MainWindowViewModel />
 	</Design.DataContext>
 
-    <Grid RowDefinitions="Auto, Auto, 500">
+    <UserControl.Styles>
+        <Style Selector="Border.ButtonStyle">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="20"/>
+        </Style>
+
+        <Style Selector="Border.ButtonStyle:pointerover">
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto, Auto, *">
         <Label Grid.Row="0" FontSize="24" HorizontalAlignment="Center">Video Player</Label>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" Background="rgb(25, 100, 145)" Spacing="20">
-            <Button Command="{Binding Play}" Margin="20" Content="{Binding FilePlay}"/>
-            <Button Command="{Binding Unload}" Margin="20" Content="Unload Content"/>
-            <TextBlock Background="rgb(50, 50, 50)" Margin="20" Padding="6" Text="{Binding PlayTimeSeconds}"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" Background="rgb(25, 100, 145)" Spacing="10">
+            <Border Classes="ButtonStyle"><Button  Background="rgb(70, 160, 120)" Command="{Binding Play}" Content="{Binding FilePlay}"/></Border>
+            <Border Classes="ButtonStyle"><Button  Background="rgb(70, 160, 120)" Command="{Binding Unload}" Content="Unload Content"/></Border>
+            <TextBlock  Background="rgb(30, 30, 30)" Margin="20" Padding="6" Text="{Binding PlayTimeSeconds}"/>
         </StackPanel>
         
         <Border Padding="5" Grid.Row="2" Margin="5" CornerRadius="0 0 10 10" Background="rgb(55, 55, 55)">

@@ -13,6 +13,33 @@
 		<vm:ConvertModel />
 	</Design.DataContext>
 
+    <UserControl.Styles>
+        <Style Selector="Border.BorderHover">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Width" Value="202"/>
+        </Style>
+
+        <Style Selector="Border.BorderHover.Left">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+
+        <Style Selector="Border.BorderHover.Left Button">
+            <Setter Property="Background" Value="rgb(130,130,155)"/>
+        </Style>
+
+        <Style Selector="Border.BorderHover Button">
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Border.BorderHover:pointerover">
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </UserControl.Styles>
+
 	<StackPanel>
         <Border Margin="5" CornerRadius="10" Background="rgb(30, 187, 114)">
             <TextBlock Margin="5"
@@ -34,7 +61,9 @@
                             Text="{Binding Details}"
                             TextWrapping="Wrap" />
                         
-                        <Button Command="{Binding SetFilePaths}" CommandParameter="{Binding $self}" Content="Pick File Paths" />
+                        <Border Classes="BorderHover Left">
+                            <Button Command="{Binding SetFilePaths}" CommandParameter="{Binding $self}" Content="Pick File Paths" />
+                        </Border>
                         
                         <TextBlock
                             FontSize="16"
@@ -45,7 +74,9 @@
             </Border>
 
             <Border Width="450" BorderBrush="Black" BorderThickness="1" CornerRadius="10" Background="rgb(45, 35, 125)">
-                <Button HorizontalAlignment="Center" Command="{Binding PerformConvert}" CommandParameter="{Binding $self}">Convert Media</Button>
+                <Border Classes="BorderHover" Height="32">
+                    <Button HorizontalAlignment="Center" Command="{Binding PerformConvert}" CommandParameter="{Binding $self}">Convert Media</Button>
+                </Border>
             </Border>
 
         </DockPanel>

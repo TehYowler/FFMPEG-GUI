@@ -16,10 +16,25 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    
-    <Grid RowDefinitions="Auto,*,Auto" Margin="10">
+    <Window.Styles>
+        <Style Selector="MenuItem">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="rgb(70,70,150)"/>
+            <Setter Property="Margin" Value="3 2"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="MenuItem:pointerover">
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="rgb(20,20,100)"/>
+        </Style>
+    </Window.Styles>
 
-        <Menu  Grid.Row="0">
+    
+    <StackPanel Margin="10">
+
+        <Menu Height="40">
             <MenuItem Header="_Main Menu" Command="{Binding NavigateTo}" CommandParameter="0" />
             <MenuItem Header="_Concatenate" Command="{Binding NavigateTo}" CommandParameter="1" />
             <MenuItem Header="_Stitch" Command="{Binding NavigateTo}" CommandParameter="2" />
@@ -27,19 +42,11 @@
             <MenuItem Header="_Convert" Command="{Binding NavigateTo}" CommandParameter="4" />
         </Menu>
 
-        <TransitioningContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
-
-        <v:Video Grid.Row="2"/>
-
-        <!-- <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="5"
-					HorizontalAlignment="Right">
-
-            <Button Command="{Binding NavigateTo}" CommandParameter="0" Content="Main" />
-            <Button Command="{Binding NavigateTo}" CommandParameter="1" Content="Concatenate" />
-            <Button Command="{Binding NavigateTo}" CommandParameter="2" Content="Stitch" />
-            <Button Command="{Binding NavigateTo}" CommandParameter="3" Content="Trim" />
-            <Button Command="{Binding NavigateTo}" CommandParameter="4" Content="Convert" />
-        </StackPanel> -->
-    </Grid>
+        <DockPanel>
+            <TransitioningContentControl Content="{Binding CurrentPage}" DockPanel.Dock="Top" Height="330"/>
+            <v:Video/>
+        </DockPanel>
+        
+    </StackPanel>
 
 </Window>
